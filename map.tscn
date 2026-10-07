@@ -1,9 +1,13 @@
 [gd_scene format=3 uid="uid://do5i6fwv1dg83"]
 
 [ext_resource type="PackedScene" uid="uid://bn3m8at1jlbhr" path="res://player.tscn" id="1_c7s6e"]
+[ext_resource type="Script" uid="uid://uxxrvubbefl6" path="res://kill_zone.gd" id="2_wijl4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(740, 300)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_yf5fn"]
+size = Vector2(1036, 18.75)
 
 [node name="Map" type="Node2D" unique_id=2063123110]
 position = Vector2(343, 254)
@@ -23,3 +27,11 @@ offset_top = 98.0
 offset_right = 665.0
 offset_bottom = 396.0
 color = Color(0.18039216, 0.3137255, 1, 1)
+
+[node name="KillZone" type="Area2D" parent="." unique_id=241915999]
+position = Vector2(625, 900)
+script = ExtResource("2_wijl4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillZone" unique_id=610425145]
+position = Vector2(-350, -529.375)
+shape = SubResource("RectangleShape2D_yf5fn")
