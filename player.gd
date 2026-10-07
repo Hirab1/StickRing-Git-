@@ -1,5 +1,9 @@
 extends CharacterBody2D
 
+# --- Node References ---
+@onready var sprite = $Sprite2D
+@onready var anim = $AnimationPlayer
+
 # Movement Tuning (Soulslike snappy feel)
 const SPEED = 280.0
 const ACCELERATION = 2400.0
@@ -22,13 +26,12 @@ var facing_direction = 1.0
 var is_invulnerable = false
 
 func _ready():
-	# For multiplayer later: if node name matches client peer ID, this player owns it
-	# When testing single-player, this defaults safely.
 	if name.is_valid_int():
 		set_multiplayer_authority(name.to_int())
+	else:
+		set_multiplayer_authority(1)
 
 func _physics_process(delta):
-	# MULTIPLAYER HOOK: Only the client controlling this character processes input
 	if is_multiplayer_authority():
 		handle_timers(delta)
 		
@@ -53,13 +56,27 @@ func handle_normal_movement(delta):
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
-	# Horizontal Acceleration & Deceleration (Snappy, not ice-skating)
+	# Horizontal Acceleration & Deceleration
 	var input_dir = Input.get_axis("move_left", "move_right")
 	if input_dir != 0:
 		velocity.x = move_toward(velocity.x, input_dir * SPEED, ACCELERATION * delta)
 		facing_direction = sign(input_dir)
+		
+		# --- VISUAL FLIP (Faces left when moving left) ---
+		if facing_direction == -1:
+			sprite.flip_h = true
+		else:
+			sprite.flip_h = false
+
+		# --- PLAY WALK ANIMATION ---
+		if is_on_floor():
+			anim.play("walk")
 	else:
 		velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
+		
+		# --- PLAY IDLE ANIMATION WHEN STOPPED ---
+		if is_on_floor():
+			anim.play("idle")
 
 	# Roll / Dodge Check
 	if Input.is_action_just_pressed("dodge") and is_on_floor() and roll_cd_timer <= 0.0:

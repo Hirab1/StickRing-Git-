@@ -1,10 +1,65 @@
 [gd_scene format=3 uid="uid://bn3m8at1jlbhr"]
 
 [ext_resource type="Script" uid="uid://b70tfo5p0qf5b" path="res://player.gd" id="1_4flbx"]
+[ext_resource type="Texture2D" uid="uid://mvfaud8w8fxq" path="res://assets/Zekko_34x32.png" id="2_onrkg"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_3xd07"]
 radius = 7.0
 height = 44.0
+
+[sub_resource type="Animation" id="Animation_onrkg"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [12]
+}
+
+[sub_resource type="Animation" id="Animation_i3pqv"]
+resource_name = "idle"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.06666667, 0.43333334, 0.9),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [13, 12, 13]
+}
+
+[sub_resource type="Animation" id="Animation_hqtel"]
+resource_name = "walk"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.46666667, 0.93333334),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [9, 10, 11]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hqtel"]
+_data = {
+&"RESET": SubResource("Animation_onrkg"),
+&"idle": SubResource("Animation_i3pqv"),
+&"walk": SubResource("Animation_hqtel")
+}
 
 [node name="Player" type="CharacterBody2D" unique_id=1952739552]
 script = ExtResource("1_4flbx")
@@ -12,8 +67,15 @@ script = ExtResource("1_4flbx")
 [node name="playercol" type="CollisionShape2D" parent="." unique_id=874693443]
 shape = SubResource("CapsuleShape2D_3xd07")
 
-[node name="player" type="ColorRect" parent="." unique_id=117473608]
-offset_left = -7.0
-offset_top = -22.0
-offset_right = 7.0
-offset_bottom = 22.0
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=258765723]
+texture_filter = 1
+position = Vector2(-1.0000002, -4.000002)
+scale = Vector2(1.0882353, 1.6875)
+texture = ExtResource("2_onrkg")
+hframes = 12
+vframes = 5
+frame = 12
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=700370709]
+libraries/ = SubResource("AnimationLibrary_hqtel")
+autoplay = &"idle"
