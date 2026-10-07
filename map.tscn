@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://do5i6fwv1dg83"]
+
+[ext_resource type="PackedScene" uid="uid://bn3m8at1jlbhr" path="res://player.tscn" id="1_c7s6e"]
+
+[node name="Map" type="Node2D" unique_id=2063123110]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=2086850163]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1883456687]
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=296351861]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Player" parent="." unique_id=1952739552 instance=ExtResource("1_c7s6e")]
