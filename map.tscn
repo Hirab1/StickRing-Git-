@@ -2,14 +2,24 @@
 
 [ext_resource type="PackedScene" uid="uid://bn3m8at1jlbhr" path="res://player.tscn" id="1_c7s6e"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
+size = Vector2(740, 300)
+
 [node name="Map" type="Node2D" unique_id=2063123110]
+position = Vector2(343, 254)
+
+[node name="Player" parent="." unique_id=1952739552 instance=ExtResource("1_c7s6e")]
+position = Vector2(65, -27)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=2086850163]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1883456687]
+[node name="floorcol" type="CollisionShape2D" parent="StaticBody2D" unique_id=88217160]
+position = Vector2(294, 248)
+shape = SubResource("RectangleShape2D_g4v7s")
 
-[node name="ColorRect" type="ColorRect" parent="." unique_id=296351861]
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="Player" parent="." unique_id=1952739552 instance=ExtResource("1_c7s6e")]
+[node name="floor" type="ColorRect" parent="StaticBody2D" unique_id=296351861]
+offset_left = -80.0
+offset_top = 98.0
+offset_right = 665.0
+offset_bottom = 396.0
+color = Color(0.18039216, 0.3137255, 1, 1)
