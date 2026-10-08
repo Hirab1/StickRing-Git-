@@ -1,10 +1,8 @@
-[gd_scene format=3 uid="uid://do5i6fwv1dg83"]
+[gd_scene format=3 uid="uid://bsxtvvn2jaqdm"]
 
-[ext_resource type="PackedScene" uid="uid://bn3m8at1jlbhr" path="res://player.tscn" id="1_c7s6e"]
-[ext_resource type="Script" uid="uid://uxxrvubbefl6" path="res://kill_zone.gd" id="2_wijl4"]
-[ext_resource type="PackedScene" uid="uid://clcmlhhu1d3p" path="res://chest.tscn" id="3_e0an3"]
-[ext_resource type="PackedScene" uid="uid://rg63i4iimywj" path="res://door.tscn" id="4_urblq"]
-[ext_resource type="PackedScene" uid="uid://bsxtvvn2jaqdm" path="res://stage_2.tscn" id="5_iw27f"]
+[ext_resource type="PackedScene" uid="uid://bn3m8at1jlbhr" path="res://player.tscn" id="1_rcwjn"]
+[ext_resource type="Script" uid="uid://uxxrvubbefl6" path="res://kill_zone.gd" id="2_nqj58"]
+[ext_resource type="PackedScene" uid="uid://dnbtbrf3rsbvo" path="res://slime.tscn" id="3_rcwjn"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_g4v7s"]
 size = Vector2(740, 300)
@@ -15,7 +13,7 @@ size = Vector2(1036, 18.75)
 [node name="Map" type="Node2D" unique_id=2063123110]
 position = Vector2(343, 254)
 
-[node name="Player" parent="." unique_id=1952739552 instance=ExtResource("1_c7s6e")]
+[node name="Player" parent="." unique_id=1952739552 instance=ExtResource("1_rcwjn")]
 position = Vector2(65, -27)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=2086850163]
@@ -29,19 +27,15 @@ offset_left = -80.0
 offset_top = 98.0
 offset_right = 665.0
 offset_bottom = 396.0
-color = Color(0.18039216, 0.3137255, 1, 1)
+color = Color(0.7765662, 0.08154716, 0.30003852, 1)
 
 [node name="KillZone" type="Area2D" parent="." unique_id=241915999]
 position = Vector2(625, 900)
-script = ExtResource("2_wijl4")
+script = ExtResource("2_nqj58")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="KillZone" unique_id=610425145]
 position = Vector2(-350, -529.375)
 shape = SubResource("RectangleShape2D_yf5fn")
 
-[node name="Chest" parent="." unique_id=888384180 instance=ExtResource("3_e0an3")]
-position = Vector2(469, 40)
-
-[node name="Door" parent="." unique_id=1288063189 instance=ExtResource("4_urblq")]
-position = Vector2(608, -32)
-next_level = ExtResource("5_iw27f")
+[node name="Slime" parent="." unique_id=1312059717 instance=ExtResource("3_rcwjn")]
+position = Vector2(463, 26)

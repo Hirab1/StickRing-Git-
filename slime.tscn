@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://dnbtbrf3rsbvo"]
+
+[ext_resource type="Script" uid="uid://cxu0ay7y6op6k" path="res://slime.gd" id="1_2d52u"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jq8tk"]
+size = Vector2(41, 36)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_jq8tk"]
+radius = 150.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3xd07"]
+size = Vector2(36, 36)
+
+[node name="Slime" type="CharacterBody2D" unique_id=1312059717]
+script = ExtResource("1_2d52u")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=168120442]
+position = Vector2(120, 47)
+shape = SubResource("RectangleShape2D_jq8tk")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=539930774]
+offset_left = 100.0
+offset_top = 29.0
+offset_right = 140.0
+offset_bottom = 69.0
+color = Color(0.16264322, 0.888017, 0, 1)
+
+[node name="DetectionZone" type="Area2D" parent="." unique_id=447641744]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DetectionZone" unique_id=1537782734]
+position = Vector2(119, 45)
+shape = SubResource("CircleShape2D_jq8tk")
+
+[node name="KillZone" type="Area2D" parent="." unique_id=344673868]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="KillZone" unique_id=399442937]
+position = Vector2(120, 49)
+shape = SubResource("RectangleShape2D_3xd07")

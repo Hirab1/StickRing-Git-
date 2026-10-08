@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://clcmlhhu1d3p"]
+
+[ext_resource type="Script" uid="uid://f1d0i6uros0r" path="res://chest.gd" id="1_twpm2"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_3xd07"]
+size = Vector2(65, 54)
+
+[node name="Chest" type="Area2D" unique_id=888384180]
+script = ExtResource("1_twpm2")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=10754727]
+offset_left = 49.0
+offset_top = 13.0
+offset_right = 116.0
+offset_bottom = 71.0
+color = Color(0.46254545, 0.24121025, 0.029472433, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=879445776]
+position = Vector2(83.5, 44)
+shape = SubResource("RectangleShape2D_3xd07")
