@@ -74,29 +74,32 @@ func handle_normal_movement(delta):
 		velocity.y = JUMP_VELOCITY
 
 	# Horizontal Acceleration & Deceleration
+	var is_running = Input.is_action_pressed("run")
+	
 	if input_dir != 0:
-		var is_running = Input.is_action_pressed("run")
 		var target_speed = RUN_SPEED if is_running else WALK_SPEED
-
 		velocity.x = move_toward(velocity.x, input_dir * target_speed, ACCELERATION * delta)
 		facing_direction = sign(input_dir)
 		visuals.scale.x = absf(visuals.scale.y) * facing_direction
-
-		# Play run or walk animation when moving on the floor
-		if is_on_floor():
-			anim.play("run" if is_running else "walk")
 	else:
 		velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
 
-		# Play idle animation when standing still on the floor
-		if is_on_floor():
-			anim.play("idle")
-
-	# --- JUMP / AIR ANIMATION ---
-	if not is_on_floor() or velocity.y < 0:
+	# --- ANIMATION PRIORITY ---
+# --- ANIMATION PRIORITY ---
+	if not is_on_floor():
+		# Plays jump if in the air, but ONLY if it isn't already assigned
 		if anim.has_animation("jump") and anim.assigned_animation != "jump":
 			anim.play("jump")
-
+	elif input_dir != 0:
+		# Plays run or walk if grounded and moving
+		if is_running and anim.assigned_animation != "run":
+			anim.play("run")
+		elif not is_running and anim.assigned_animation != "walk":
+			anim.play("walk")
+	else:
+		# Plays idle if grounded and standing still
+		if anim.assigned_animation != "idle":
+			anim.play("idle")
 func start_roll():
 	current_state = State.ROLLING
 	if anim.has_animation("roll"):
