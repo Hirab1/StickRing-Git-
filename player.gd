@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 # --- Node References ---
-@onready var sprite = $Sprite2D
+@onready var visuals = $Visuals
 @onready var anim = $AnimationPlayer
 
 # Movement Tuning (Soulslike snappy feel)
@@ -65,7 +65,7 @@ func handle_normal_movement(delta):
 	# Roll: A+Alt / D+Alt (needs a direction held)
 	if Input.is_action_just_pressed("dodge") and is_on_floor() and input_dir != 0 and roll_cd_timer <= 0.0:
 		facing_direction = sign(input_dir)
-		sprite.flip_h = facing_direction < 0
+		visuals.scale.x = absf(visuals.scale.y) * facing_direction
 		start_roll()
 		return
 
@@ -80,24 +80,27 @@ func handle_normal_movement(delta):
 
 		velocity.x = move_toward(velocity.x, input_dir * target_speed, ACCELERATION * delta)
 		facing_direction = sign(input_dir)
-		sprite.flip_h = facing_direction < 0
+		visuals.scale.x = absf(visuals.scale.y) * facing_direction
 
+		# Play run or walk animation when moving on the floor
 		if is_on_floor():
 			anim.play("run" if is_running else "walk")
 	else:
 		velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
 
+		# Play idle animation when standing still on the floor
 		if is_on_floor():
 			anim.play("idle")
 
 	# --- JUMP / AIR ANIMATION ---
 	if not is_on_floor() or velocity.y < 0:
-		if anim.assigned_animation != "jump":
+		if anim.has_animation("jump") and anim.assigned_animation != "jump":
 			anim.play("jump")
 
 func start_roll():
 	current_state = State.ROLLING
-	anim.play("roll")
+	if anim.has_animation("roll"):
+		anim.play("roll")
 	roll_timer = ROLL_DURATION
 	roll_cd_timer = ROLL_COOLDOWN
 	is_invulnerable = true
@@ -119,7 +122,8 @@ func die():
 	current_state = State.DEAD
 	is_invulnerable = true
 	velocity = Vector2.ZERO
-	anim.play("death")
+	if anim.has_animation("death"):
+		anim.play("death")
 	await get_tree().create_timer(RESPAWN_DELAY).timeout
 	respawn()
 
@@ -128,4 +132,5 @@ func respawn():
 	velocity = Vector2.ZERO
 	is_invulnerable = false
 	current_state = State.NORMAL
-	anim.play("idle")
+	if anim.has_animation("idle"):
+		anim.play("idle")
