@@ -62,34 +62,40 @@ func handle_normal_movement(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	# Roll: A+Alt / D+Alt (needs a direction held)
-	if Input.is_action_just_pressed("dodge") and is_on_floor() and input_dir != 0 and roll_cd_timer <= 0.0:
+	# Check Input States
+	var is_running = Input.is_action_pressed("run")
+	var is_crouching = Input.is_action_pressed("crouch") # Added crouch check
+
+	# Roll: A+Alt / D+Alt (disabled while crouching)
+	if Input.is_action_just_pressed("dodge") and is_on_floor() and input_dir != 0 and roll_cd_timer <= 0.0 and not is_crouching:
 		facing_direction = sign(input_dir)
 		visuals.scale.x = absf(visuals.scale.y) * facing_direction
 		start_roll()
 		return
 
-	# Jump: Space (works while holding A or D too)
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	# Jump: Space (disabled while crouching)
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not is_crouching:
 		velocity.y = JUMP_VELOCITY
 
 	# Horizontal Acceleration & Deceleration
-	var is_running = Input.is_action_pressed("run")
-	
-	if input_dir != 0:
+	if input_dir != 0 and not is_crouching:
 		var target_speed = RUN_SPEED if is_running else WALK_SPEED
 		velocity.x = move_toward(velocity.x, input_dir * target_speed, ACCELERATION * delta)
 		facing_direction = sign(input_dir)
 		visuals.scale.x = absf(visuals.scale.y) * facing_direction
 	else:
+		# Stop moving if no input OR if crouching
 		velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
 
 	# --- ANIMATION PRIORITY ---
-# --- ANIMATION PRIORITY ---
 	if not is_on_floor():
-		# Plays jump if in the air, but ONLY if it isn't already assigned
+		# Plays jump if in the air
 		if anim.has_animation("jump") and anim.assigned_animation != "jump":
 			anim.play("jump")
+	elif is_crouching:
+		# Plays crouch if grounded and holding crouch button
+		if anim.has_animation("crouch") and anim.assigned_animation != "crouch":
+			anim.play("crouch")
 	elif input_dir != 0:
 		# Plays run or walk if grounded and moving
 		if is_running and anim.assigned_animation != "run":
