@@ -5,6 +5,7 @@ extends CharacterBody2D
 @onready var anim = $AnimationPlayer
 
 # Movement Tuning (Soulslike snappy feel)
+const CROUCH_SPEED = 80.0  # Added crouch walk speed
 const WALK_SPEED = 150.0
 const RUN_SPEED = 280.0
 const ACCELERATION = 2400.0
@@ -64,7 +65,7 @@ func handle_normal_movement(delta):
 
 	# Check Input States
 	var is_running = Input.is_action_pressed("run")
-	var is_crouching = Input.is_action_pressed("crouch") # Added crouch check
+	var is_crouching = Input.is_action_pressed("crouch") 
 
 	# Roll: A+Alt / D+Alt (disabled while crouching)
 	if Input.is_action_just_pressed("dodge") and is_on_floor() and input_dir != 0 and roll_cd_timer <= 0.0 and not is_crouching:
@@ -78,13 +79,19 @@ func handle_normal_movement(delta):
 		velocity.y = JUMP_VELOCITY
 
 	# Horizontal Acceleration & Deceleration
-	if input_dir != 0 and not is_crouching:
-		var target_speed = RUN_SPEED if is_running else WALK_SPEED
+	if input_dir != 0:
+		# Determine target speed based on state
+		var target_speed = WALK_SPEED
+		if is_crouching:
+			target_speed = CROUCH_SPEED
+		elif is_running:
+			target_speed = RUN_SPEED
+			
 		velocity.x = move_toward(velocity.x, input_dir * target_speed, ACCELERATION * delta)
 		facing_direction = sign(input_dir)
 		visuals.scale.x = absf(visuals.scale.y) * facing_direction
 	else:
-		# Stop moving if no input OR if crouching
+		# Stop moving if no input
 		velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
 
 	# --- ANIMATION PRIORITY ---
@@ -93,9 +100,14 @@ func handle_normal_movement(delta):
 		if anim.has_animation("jump") and anim.assigned_animation != "jump":
 			anim.play("jump")
 	elif is_crouching:
-		# Plays crouch if grounded and holding crouch button
-		if anim.has_animation("crouch") and anim.assigned_animation != "crouch":
-			anim.play("crouch")
+		if input_dir != 0:
+			# Moving while crouching
+			if anim.has_animation("crouch_walk") and anim.assigned_animation != "crouch_walk":
+				anim.play("crouch_walk")
+		else:
+			# Standing still while crouching
+			if anim.has_animation("crouch") and anim.assigned_animation != "crouch":
+				anim.play("crouch")
 	elif input_dir != 0:
 		# Plays run or walk if grounded and moving
 		if is_running and anim.assigned_animation != "run":
@@ -105,7 +117,8 @@ func handle_normal_movement(delta):
 	else:
 		# Plays idle if grounded and standing still
 		if anim.assigned_animation != "idle":
-			anim.play("idle")
+			anim.play("idle", 0.15)
+
 func start_roll():
 	current_state = State.ROLLING
 	if anim.has_animation("roll"):
