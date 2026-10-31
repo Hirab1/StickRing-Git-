@@ -5,28 +5,32 @@ extends CharacterBody2D
 @onready var anim = $AnimationPlayer
 
 # Movement Tuning (Soulslike snappy feel)
-const CROUCH_SPEED = 80.0  # Added crouch walk speed
+const CROUCH_SPEED = 80.0
 const WALK_SPEED = 150.0
 const RUN_SPEED = 280.0
 const ACCELERATION = 2400.0
 const FRICTION = 1800.0
 const JUMP_VELOCITY = -450.0
 
-# Dodge Roll Tuning
-const ROLL_SPEED = 480.0
-const ROLL_DURATION = 0.28
-const ROLL_COOLDOWN = 0.45
+# Dash Tuning
+const DASH_SPEED = 480.0
+const DASH_DURATION = 0.28
+const DASH_COOLDOWN = 0.45
+
+# Attack Tuning
+const ATTACK_DURATION = 0.4
 
 # Death Tuning
 const RESPAWN_DELAY = 1.2
 
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
-enum State { NORMAL, ROLLING, DEAD }
+enum State { NORMAL, DASHING, ATTACKING, DEAD }
 var current_state = State.NORMAL
 
-var roll_timer = 0.0
-var roll_cd_timer = 0.0
+var dash_timer = 0.0
+var dash_cd_timer = 0.0
+var attack_timer = 0.0
 var facing_direction = 1.0
 var is_invulnerable = false
 var spawn_position = Vector2.ZERO
@@ -45,16 +49,18 @@ func _physics_process(delta):
 		match current_state:
 			State.NORMAL:
 				handle_normal_movement(delta)
-			State.ROLLING:
-				handle_rolling_movement(delta)
+			State.DASHING:
+				handle_dashing_movement(delta)
+			State.ATTACKING:
+				handle_attacking_movement(delta)
 			State.DEAD:
 				pass # frozen until respawn
 
 		move_and_slide()
 
 func handle_timers(delta):
-	if roll_cd_timer > 0.0:
-		roll_cd_timer -= delta
+	if dash_cd_timer > 0.0:
+		dash_cd_timer -= delta
 
 func handle_normal_movement(delta):
 	var input_dir = Input.get_axis("move_left", "move_right")
@@ -65,13 +71,19 @@ func handle_normal_movement(delta):
 
 	# Check Input States
 	var is_running = Input.is_action_pressed("run")
-	var is_crouching = Input.is_action_pressed("crouch") 
+	var is_crouching = Input.is_action_pressed("crouch")
 
-	# Roll: A+Alt / D+Alt (disabled while crouching)
-	if Input.is_action_just_pressed("dodge") and is_on_floor() and input_dir != 0 and roll_cd_timer <= 0.0 and not is_crouching:
+	# Attack: Left Click (disabled while crouching)
+	if Input.is_action_just_pressed("attack") and is_on_floor() and not is_crouching:
+		velocity.x = 0 # Stops sliding immediately for a heavy strike
+		start_attack()
+		return
+
+	# Dash: A+Alt / D+Alt (disabled while crouching)
+	if Input.is_action_just_pressed("dodge") and is_on_floor() and input_dir != 0 and dash_cd_timer <= 0.0 and not is_crouching:
 		facing_direction = sign(input_dir)
 		visuals.scale.x = absf(visuals.scale.y) * facing_direction
-		start_roll()
+		start_dash()
 		return
 
 	# Jump: Space (disabled while crouching)
@@ -119,21 +131,42 @@ func handle_normal_movement(delta):
 		if anim.assigned_animation != "idle":
 			anim.play("idle", 0.15)
 
-func start_roll():
-	current_state = State.ROLLING
-	if anim.has_animation("roll"):
-		anim.play("roll")
-	roll_timer = ROLL_DURATION
-	roll_cd_timer = ROLL_COOLDOWN
+# --- Attack Logic ---
+func start_attack():
+	current_state = State.ATTACKING
+	if anim.has_animation("attack"):
+		anim.play("attack")
+	attack_timer = ATTACK_DURATION
+
+func handle_attacking_movement(delta):
+	attack_timer -= delta
+	
+	# Apply friction so he doesn't slide across the floor if he attacks while running
+	velocity.x = move_toward(velocity.x, 0, FRICTION * delta)
+	
+	# Apply gravity just in case he gets pushed off a ledge while swinging
+	if not is_on_floor():
+		velocity.y += gravity * delta
+
+	if attack_timer <= 0:
+		current_state = State.NORMAL
+
+# --- Dash Logic ---
+func start_dash():
+	current_state = State.DASHING
+	if anim.has_animation("dodge"):
+		anim.play("dodge")
+	dash_timer = DASH_DURATION
+	dash_cd_timer = DASH_COOLDOWN
 	is_invulnerable = true
-	velocity.x = facing_direction * ROLL_SPEED
+	velocity.x = facing_direction * DASH_SPEED
 	velocity.y = 0
 
-func handle_rolling_movement(delta):
-	roll_timer -= delta
-	velocity.x = facing_direction * ROLL_SPEED
+func handle_dashing_movement(delta):
+	dash_timer -= delta
+	velocity.x = facing_direction * DASH_SPEED
 
-	if roll_timer <= 0:
+	if dash_timer <= 0:
 		is_invulnerable = false
 		current_state = State.NORMAL
 
